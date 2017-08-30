@@ -1,0 +1,75 @@
+.jumbotron {
+	margin: 0 auto;
+	margin-top: 30px;
+	margin-bottom: 30px;
+	width: 960px;
+	text-align: center;
+	border: 2px solid black;
+	border-radius: 4px;
+	background-color: black;
+	color: white;
+}
+
+#container {
+	width: 960px;
+	padding-left: 0px;
+	padding-right: 0px;
+}
+
+input, select {
+	display: block;
+	width: 935px;
+	height: 30px;
+	margin: 0 auto;
+	margin-left: 10px;
+	margin-right: 10px;
+	border-radius: 4px;
+	border: 1px solid #999999;
+}
+
+label {
+	display: block;
+	margin: 0 auto;
+	margin-top: 10px;
+	margin-left: 10px;
+	margin-right: 10px;
+	width: 920px;
+	border: none;
+}
+
+#add-train-div, #curr-trains-div {
+	border: 1px solid black;
+	border-radius: 4px;
+}
+
+#add-train-p, #curr-trains-p {
+	margin-top: 0;
+	margin-right: 0;
+	padding-top: 5px;
+	height: 30px;
+	background-color: #286090;
+	color: #ffffff;
+	padding-left: 5px;
+
+}
+
+.table {
+	text-align: center;
+}
+
+th {
+	text-align: center;
+}
+
+#submit, #pop {
+	height: 35px;
+	margin-top: 10px;
+	margin-left: 10px;
+	background-color: #999999;
+	border: 1px solid black;
+	color: #ffffff;
+}
+
+#curr-trains-icon, #add-train-icon, #train-header-icon {
+	margin-left: 10px;
+}
