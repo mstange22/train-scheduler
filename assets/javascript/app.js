@@ -11,14 +11,51 @@ firebase.initializeApp(config);
 
 var database = firebase.database();
 
+// user entered values
+var trainName;
+var destination;
+var firstTrain;
+var frequency;
+
+// calculated values
+var nextTrain;
+var minutesAway;
+var offsetTime;
+
+$(document).ready(function() {
+	$(".jumbotron").append("<h2>Current Time: " + moment().format("HH:mm"));
+});
+
 database.ref("/Trains").on("child_added", function(snapshot) {
 
-	nextTrain = snapshot.val().FirstTrain;
-	minutesAway = snapshot.val().FirstTrain;
+	firstTrain = snapshot.val().FirstTrain;
+	frequency = snapshot.val().Frequency;
+
+	// if(moment().format("HH:mm") > firstTrain) {
+
+	// }
+	var firstTimeConverted = moment(firstTrain, "HH:mm").subtract(1, "years");
+	console.log(firstTimeConverted);
+
+	var diffTime = moment().diff(moment(firstTimeConverted), "minutes");
+	console.log("Difference in time: " + diffTime);
+
+	var timeSinceLastTrain = diffTime % frequency;
+
+	minutesAway = frequency - timeSinceLastTrain;
+	console.log("Minutes until next train: " + diffTime);
+
+	
+	// minutesAway = frequency -
+	// 					(moment().diff(moment(firstTime, "HH:mm"), "minutes")
+	// 						% frequency);
+
+	nextTrain = moment().add(minutesAway, "minutes").format("HH:mm");
 	
 	var tableString = "<tr><td>" + snapshot.val().Name + "</td>" +
 					 	  "<td>" + snapshot.val().Destination + "</td>" +
-					 	  "<td>" + snapshot.val().Frequency + "</td>" +
+					 	  "<td>" + firstTrain + "</td>" +
+					 	  "<td>" + frequency + "</td>" +
 					 	  "<td>" + nextTrain + "</td>" +
 					 	  "<td>" + minutesAway + "</td></tr>";
 
@@ -42,10 +79,10 @@ database.ref("/Trains").on("child_added", function(snapshot) {
 $("#submit").on("click", function() {
 	event.preventDefault();
 
-	var trainName = $("#train-name").val().trim();
-	var destination = $("#destination").val().trim();
-	var firstTrain = $("#first-train").val().trim();
-	var frequency = $("#frequency").val().trim();
+	trainName = $("#train-name").val().trim();
+	destination = $("#destination").val().trim();
+	firstTrain = $("#first-train").val().trim();
+	frequency = $("#frequency").val().trim();
 
 	// add the new data to Firebase
 	database.ref("/Trains").push({
