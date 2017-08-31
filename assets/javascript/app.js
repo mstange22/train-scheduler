@@ -29,11 +29,11 @@ var offsetTime;
 var tableString = "";
 
 //display current time on page load
-$("#time-display").html("Current Time: " + moment().format("HH:mm:ss"));
+$("#time-display").html("Current Time: " + moment().format("HH:mm"));
 
 // refresh time every minute
 var timeDisplayinterval = setInterval(function() {	
-	$("#time-display").html("Current Time: " + moment().format("HH:mm:ss"));
+	$("#time-display").html("Current Time: " + moment().format("HH:mm"));
 }, 60000);
 
 // refresh trains on page load.
@@ -48,6 +48,7 @@ function refreshTrains() {
 	database.ref("/Trains").once("value", function(snapshot) {
 
 		$("#table-body").html("");
+		$("#time-display").html("Current Time: " + moment().format("HH:mm"));
 
 		snapshot.forEach(function(childSnapshot) {
 
