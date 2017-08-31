@@ -28,9 +28,6 @@ var offsetTime;
 // string to build table data row
 var tableString = "";
 
-//display current time on page load
-$("#time-display").html("Current Time: " + moment().format("HH:mm"));
-
 // refresh time every minute
 var timeDisplayinterval = setInterval(function() {	
 	$("#time-display").html("Current Time: " + moment().format("HH:mm"));
