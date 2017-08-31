@@ -11,6 +11,9 @@ firebase.initializeApp(config);
 
 var database = firebase.database();
 
+//array to store keys pushed onto database
+var keys = [];
+
 // user entered values
 var trainName;
 var destination;
@@ -22,45 +25,78 @@ var nextTrain;
 var minutesAway;
 var offsetTime;
 
-$(document).ready(function() {
-	$(".jumbotron").append("<h2>Current Time: " + moment().format("HH:mm"));
-});
+// string to build table data row
+var tableString = "";
 
-database.ref("/Trains").on("child_added", function(snapshot) {
+//display current time on page load
+$("#time-display").html("Current Time: " + moment().format("HH:mm:ss"));
 
-	firstTrain = snapshot.val().FirstTrain;
-	frequency = snapshot.val().Frequency;
+// refresh time every minute
+var timeDisplayinterval = setInterval(function() {	
+	$("#time-display").html("Current Time: " + moment().format("HH:mm:ss"));
+}, 60000);
 
-	// if(moment().format("HH:mm") > firstTrain) {
+// refresh trains on page load.
+refreshTrains();
 
-	// }
-	var firstTimeConverted = moment(firstTrain, "HH:mm").subtract(1, "years");
-	console.log(firstTimeConverted);
+// refresh trains display every minute
+var pageRefreshInterval = setInterval(refreshTrains, 60000);
 
-	var diffTime = moment().diff(moment(firstTimeConverted), "minutes");
-	console.log("Difference in time: " + diffTime);
+// iterate through all children and write each train to HTML table 
+function refreshTrains() {
 
-	var timeSinceLastTrain = diffTime % frequency;
+	database.ref("/Trains").once("value", function(snapshot) {
 
-	minutesAway = frequency - timeSinceLastTrain;
-	console.log("Minutes until next train: " + diffTime);
+		$("#table-body").html("");
 
-	
-	// minutesAway = frequency -
-	// 					(moment().diff(moment(firstTime, "HH:mm"), "minutes")
-	// 						% frequency);
+		snapshot.forEach(function(childSnapshot) {
 
-	nextTrain = moment().add(minutesAway, "minutes").format("HH:mm");
-	
-	var tableString = "<tr><td>" + snapshot.val().Name + "</td>" +
-					 	  "<td>" + snapshot.val().Destination + "</td>" +
+			trainName = childSnapshot.val().Name;
+			destination = childSnapshot.val().Destination;
+			firstTrain = childSnapshot.val().FirstTrain;
+			frequency = childSnapshot.val().Frequency;
+
+			writeTrain();
+		});
+	});
+}
+
+function writeTrain() {
+
+	// if first train is later than current time...
+	if(moment().format("HH:mm") < firstTrain) {
+
+		// set next train = first train
+		nextTrain = firstTrain;
+		minutesAway = moment(nextTrain, "HH:mm").diff(moment(), "minutes") + 1;
+	}
+
+	// otherwise, calculate minutesAway with % and add to moment to get next train
+	else {
+
+			var firstTimeConverted = moment(firstTrain, "HH:mm").subtract(1, "years");
+			// console.log(firstTimeConverted);
+
+		var diffTime = moment().diff(moment(firstTimeConverted), "minutes");
+		// console.log("Difference in time: " + diffTime);
+
+		var timeSinceLastTrain = diffTime % frequency;
+
+		minutesAway = frequency - timeSinceLastTrain;
+
+		nextTrain = moment().add(minutesAway, "minutes").format("HH:mm");
+
+	}
+
+	tableString = "<tr><td>" + trainName + "</td>" +
+					 	  "<td>" + destination + "</td>" +
 					 	  "<td>" + firstTrain + "</td>" +
 					 	  "<td>" + frequency + "</td>" +
 					 	  "<td>" + nextTrain + "</td>" +
 					 	  "<td>" + minutesAway + "</td></tr>";
 
 	$("#table-body").append(tableString);
-});
+}
 
 // database.ref("/Trains").on("child_removed", function(snapshot) {
 
@@ -85,18 +121,31 @@ $("#submit").on("click", function() {
 	frequency = $("#frequency").val().trim();
 
 	// add the new data to Firebase
-	database.ref("/Trains").push({
+	keys.push(database.ref("/Trains").push({
 		Name : trainName, 
 		Destination : destination, 
 		FirstTrain : firstTrain, 
 		Frequency : frequency
-	});
+	}));
 
 	// clear input fields
 	$("#train-name").val("");
 	$("#destination").val("");
 	$("#first-train").val("");
 	$("#frequency").val("");
+
+	// fire on "child_added" event handler to write the new child
+	database.ref("/Trains").on("child_added", function(childSnapshot) {
+
+		refreshTrains();
+
+		// trainName = childSnapshot.val().Name;
+		// destination = childSnapshot.val().Destination;
+		// firstTrain = childSnapshot.val().FirstTrain;
+		// frequency = childSnapshot.val().Frequency;
+
+		// writeTrain();
+	});	
 });
 
 // $("#pop").on("click", function() {
