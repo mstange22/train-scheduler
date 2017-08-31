@@ -39,15 +39,21 @@ refreshTrains();
 // refresh trains display every minute
 var pageRefreshInterval = setInterval(refreshTrains, 60000);
 
-// iterate through all children and write each train to HTML table 
+// iterate through all children and write each train to HTML table
+// store child keys in array for reference
 function refreshTrains() {
 
-	database.ref("/Trains").once("value", function(snapshot) {
+	database.ref("/Trains").on("value", function(snapshot) {
 
 		$("#table-body").html("");
 		$("#time-display").html("Current Time: " + moment().format("HH:mm"));
 
+		var i = 0;
+
 		snapshot.forEach(function(childSnapshot) {
+
+			// capture each key
+			keys[i++] = childSnapshot.key;
 
 			trainName = childSnapshot.val().Name;
 			destination = childSnapshot.val().Destination;
@@ -96,20 +102,6 @@ function writeTrain() {
 	$("#table-body").append(tableString);
 }
 
-// database.ref("/Trains").on("child_removed", function(snapshot) {
-
-// 	nextTrain = snapshot.val().FirstTrain;
-// 	minutesAway = snapshot.val().FirstTrain;
-	
-// 	var tableString = "<tr><td>" + snapshot.val().Name + "</td>" +
-// 					 	  "<td>" + snapshot.val().Destination + "</td>" +
-// 					 	  "<td>" + snapshot.val().Frequency + "</td>" +
-// 					 	  "<td>" + nextTrain + "</td>" +
-// 					 	  "<td>" + minutesAway + "</td></tr>";
-
-// 	$("#table-body").append(tableString);
-// });
-
 $("#submit").on("click", function() {
 	event.preventDefault();
 
@@ -119,12 +111,12 @@ $("#submit").on("click", function() {
 	frequency = $("#frequency").val().trim();
 
 	// add the new data to Firebase
-	keys.push(database.ref("/Trains").push({
+	database.ref("/Trains").push({
 		Name : trainName, 
 		Destination : destination, 
 		FirstTrain : firstTrain, 
 		Frequency : frequency
-	}));
+	});
 
 	// clear input fields
 	$("#train-name").val("");
@@ -136,19 +128,17 @@ $("#submit").on("click", function() {
 	database.ref("/Trains").on("child_added", function(childSnapshot) {
 
 		refreshTrains();
-
-		// trainName = childSnapshot.val().Name;
-		// destination = childSnapshot.val().Destination;
-		// firstTrain = childSnapshot.val().FirstTrain;
-		// frequency = childSnapshot.val().Frequency;
-
-		// writeTrain();
 	});	
 });
 
-// $("#pop").on("click", function() {
-// 	event.preventDefault();
+$("#pop").on("click", function() {
 
-// 	database.ref("/Trains").remove();
-// 	$("#table-body").html("");
-// });
+	event.preventDefault();
+
+	database.ref("/Trains").child(keys.pop()).remove();
+
+	database.ref("/Trains").on("child_removed", function(snapshot) {
+
+	refreshTrains();
+	});	
+});
