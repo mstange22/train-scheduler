@@ -53,19 +53,20 @@ function refreshTrains() {
 		snapshot.forEach(function(childSnapshot) {
 
 			// capture each key
-			keys[i++] = childSnapshot.key;
+			keys[i] = childSnapshot.key;
 
 			trainName = childSnapshot.val().Name;
 			destination = childSnapshot.val().Destination;
 			firstTrain = childSnapshot.val().FirstTrain;
 			frequency = childSnapshot.val().Frequency;
 
-			writeTrain();
+			writeTrain(i);
+			i++;
 		});
 	});
 }
 
-function writeTrain() {
+function writeTrain(index) {
 
 	// if first train is later than current time...
 	if(moment().format("HH:mm") < firstTrain) {
@@ -93,11 +94,13 @@ function writeTrain() {
 	}
 
 	tableString = "<tr><td>" + trainName + "</td>" +
-					 	  "<td>" + destination + "</td>" +
-					 	  "<td>" + firstTrain + "</td>" +
-					 	  "<td>" + frequency + "</td>" +
-					 	  "<td>" + nextTrain + "</td>" +
-					 	  "<td>" + minutesAway + "</td></tr>";
+			 	  "<td>" + destination + "</td>" +
+			 	  "<td>" + firstTrain + "</td>" +
+			 	  "<td>" + frequency + "</td>" +
+			 	  "<td>" + nextTrain + "</td>" +
+			 	  "<td>" + minutesAway + "</td>" +
+			 	  "<td><button class=\"remove-button\" data-index=\"" +
+			 	  						 index + "\">Remove</button></td></tr>";
 
 	$("#table-body").append(tableString);
 }
@@ -131,11 +134,25 @@ $("#submit").on("click", function() {
 	});	
 });
 
-$("#pop").on("click", function() {
+$("#pop-button").on("click", function() {
 
 	event.preventDefault();
 
 	database.ref("/Trains").child(keys.pop()).remove();
+
+	database.ref("/Trains").on("child_removed", function(snapshot) {
+
+	refreshTrains();
+	});	
+});
+
+$("#table-body").on("click", ".remove-button", function() {
+
+	event.preventDefault();
+
+	var keyToRemove = keys[$(this).attr("data-index")];
+
+	database.ref("/Trains").child(keyToRemove).remove();
 
 	database.ref("/Trains").on("child_removed", function(snapshot) {
 
