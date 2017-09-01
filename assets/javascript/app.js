@@ -1,3 +1,12 @@
+/*
+ * Homework #7 - Train Scheduler
+ * Add a train, give it a start time and a frequency.
+ * Train is added to a Firebase database.
+ * Next train time and minutes to next train are calculated.
+ * Current time and train data refreshes every minute.  
+ */
+
+// Firebase configuration & initialization
 var config = {
     apiKey: "AIzaSyAiexV0rlMuaZQbv-wTHO3Cj5arNwsXIw4",
     authDomain: "first-project-171de.firebaseapp.com",
@@ -25,7 +34,7 @@ var nextTrain;
 var minutesAway;
 var offsetTime;
 
-// string to build table data row
+// string to build a table data row for writing to html
 var tableString = "";
 
 // refresh time every minute
@@ -66,6 +75,12 @@ function refreshTrains() {
 	});
 }
 
+/*
+ * writeTrain(index)
+ * displays a row in the html table.  The index parameter is used as 
+ * a data attribute of the remove button, so the click handler can
+ * remove the appropriate train / row. 
+ */
 function writeTrain(index) {
 
 	// if first train is later than current time...
@@ -134,6 +149,7 @@ $("#submit").on("click", function() {
 	});	
 });
 
+//  pop button listener - remove last train
 $("#pop-button").on("click", function() {
 
 	event.preventDefault();
@@ -146,6 +162,8 @@ $("#pop-button").on("click", function() {
 	});	
 });
 
+// remove button listener, targeting the parent, then walking down
+//  the DOM to the remove button.
 $("#table-body").on("click", ".remove-button", function() {
 
 	event.preventDefault();
