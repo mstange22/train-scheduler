@@ -1,4 +1,4 @@
-# train-scsheduler
+# train-scheduler
 Homework #7 Firebase &amp; Moment.js
 Deployed Site: https://mstange22.github.io/train-scheduler/
 
